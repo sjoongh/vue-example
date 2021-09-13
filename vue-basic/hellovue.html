@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Example</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+    <!-- 기본 Vue 템플릿 -->
+    <!-- Vue 렌더링 영역 선언 -->
+    <!-- 1. id="app"이 DOM에 생성됨 -->
+    <div id="app">
+        <!-- template -->
+        <!-- 4. 최종 출력 -->
+        {{ message }} 
+    </div>
+
+    <!-- 바닐라JS로 DOM 다루기 -->
+    <!-- <script>
+        document.getElementById("app").innerHTML = "Hello, Vanilla JS";
+    </script> -->
+
+    <!-- Vue 인스턴스 만들기 -->
+    <script>
+        //  new Vue({ el: '태그이름', data: { something: '어떤 것' } })
+        var app = new Vue({
+            // 2. id를 가져옴
+            el: '#app', // el : 뷰 렌더링 영역 셀렉터 ->
+                        // Vue에 마운트 시킬 HTMLElement
+            data: { // 어떠한 data를 넣을 것인지 data: { }로 지정
+                message : "Hello Vue.js" // 3. message:에 값을 전달(html message와 데이터바인딩-양방향)
+            },
+            // LifeCycle Hooks
+            // 노랑색표기 : 전부 기본으로 생성되어있는 객체임
+            beforeCreate: function() {
+                // 인스턴스 생성 이전 단계의 라이프사이클
+                console.log("beforeCreate");
+                console.log("data", this.message);
+                // 아직 Model이 정의 되지 않음
+            },
+            created: function() {
+                // 인스턴스가 생성된 단계
+                console.log("created");
+                console.log("data", this.message);
+                // 이제 모델을 연동시킬 수 있다.
+                this.message = "Model can change";
+                // 이 단계는 API 서버 등에서 내용을 불러 올 수
+                // 있는 단계
+                console.log("el:", this.$el);
+                // DOM에 부착되지 않음
+                // UI관련 작업에 적합하지 않음
+            },
+            mounted: function() {
+                // DOM에 인스턴스가 연결된 상태
+                console.log("mounted");
+                console.log("el", this.$el);
+                // el요소가 바인딩 되었다
+                // DOM 관련 작업을 수행할 수 있다.
+                console.log("DOM", this.$el.innerText);
+            },
+            updated: function() {
+                console.log("updated:"+this.message);
+            }
+        });
+    </script>
+</body>
+</html>
