@@ -9,16 +9,22 @@
 </head>
 <body>
     <!-- Vue 렌더링 영역 -->
+    <!-- app는 현재 부모이다 태그의 가장 위쪽 -->
     <div id="app">
+        <!-- 태그 안쪽 자식 요소들 -->
         <global-header></global-header>
         <h2>{{ content }}</h2>
         <!-- 부모 -> 자식 데이터 내려보내기 : props를 이용 v-bind로 props바인딩 해줌 -->
-        <!-- 이벤트 연결: v-on:이벤트명 -->
+        <!-- and v-bind:id='' or v-bind:class='' 처럼 사용 할 수 있음 -->
+        <!-- 이벤트 연결: v-on:이벤트명 v-on은 오직 emit으로 감지한 이벤트 전달 역할 -->
+        <!-- @send-msg="revMsg" -> 왼쪽send-msg가 자식컴포넌트에서 사용할 $emit의 이벤트이름
+            오른쪽 revMsg는 컴포넌트에서 실행할 메소드 -->
+        <!-- 1. click 이벤트 @send-msg 로 감지 -->
         <local-component :anythingyouwant="message"
             @send-msg="rcvMsg"></local-component>
         <local-component2></local-component2>
     </div>
-
+    <!-- 부모-자식 이외의 요소 -->
     <div id="eventBusEx">
         <h2>EventBus Receiver</h2>
         <p>{{ message }}</p>
@@ -26,7 +32,7 @@
 
     <script>
         // 부모 자식간 관계를 벗어난 데이터 통신을 위한
-        // 별도의 뷰 객체
+        // 별도의 뷰 객체 = Event Bus라고함 = 주로 Vuex를 이용함
         var eventBus = new Vue();
 
         // 전역 컴포넌트(component) : 인스턴스 내에서 어디든지 사용할 수 있는 컴포넌트
@@ -55,8 +61,15 @@
                 // button click -> sendMsg 호출
                 sendMsg: function() {
                     // cmp1이 send-msg 이벤트를 발생시킨다.
+                    // ("send-msg"를 통해 부모의 메소드 호출 ,"전달값")
+                    // $emit을 통해 바뀌어진 값을 전달해줌
+                    // 무엇을? 전달?? this가 send-msg의 값을 전달해줌
+                    // this를 사용하지 않으면 $emit의 위치를 부모객체에서 찾지 못함
+                    // why? 일반함수의 this는 상위 객체를 가리키므로
+                    // this.$emit을 통해 이 $emit을 부모객체(send-msg)로 다시 전달해줄 것을 명시해주어야함 
                     this.$emit("send-msg", "Message from Child");
-                    // eventBus에 이벤트를 발생
+                    // 1) sendMsg에 이벤트가 발생하면 eventBus에 자식요소인 triggerEventBus 전달
+                    // eventBus에 이벤트를 발생되면 가져옴
                     eventBus.$emit("triggerEventBus", "Message From Other");
                 }
             }
@@ -75,8 +88,9 @@
                 'local-component2' : {
                     template: "<div><h2>Local Component2</h2></div>"
                 }
-            },
+            }, 
             methods: {
+                // 2. rcvMsg가 @send-msg로 값 전달
                 rcvMsg: function(message) {
                     console.log(event);
                     console.log("자식으로부터 신호가 전달되었습니다");
@@ -84,7 +98,9 @@
                 }
             }
         })
-
+        // eventBusEx가 존재 → vue객체인 eventBus만듬 → eventBus에 sendMsg(click이벤트)발생시
+        //  → triggerEventBus($emit) 실행 → 메시지 전달(eventBus) → eventBus에서 전달받은 값 
+        // → eventBus바깥에 this를 선언해 data: {message}로 eventBusEx로 값을 전달해줌
         // 이벤트 버스 수신기
         let eventBusEx = new Vue({
             el: "#eventBusEx",
@@ -93,9 +109,12 @@
             },
             created: function() {
                 // eventBus가 발생하는 triggerEventBus 이벤트 처리기를 등록
-                let instance = this;
+                // 자식1 -> 부모로 전달하기 위한 this
+                let instance = this; 
+                // 2) event이벤트 발생시 on으로 감지해 동작
                 eventBus.$on("triggerEventBus", function(message) {
                     console.log("Event from EventBus:", message);
+                    // 여기서 this.message를 사용하면 자식2 -> 자식1으로 전달되므로 부모의 값은 바뀌지 않음
                     instance.message = message;
                 })
             }
