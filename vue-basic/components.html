@@ -12,7 +12,7 @@
     <!-- app는 현재 부모이다 태그의 가장 위쪽 -->
     <div id="app">
         <!-- 태그 안쪽 자식 요소들 -->
-        <global-header></global-header>
+        <global-header ></global-header>
         <h2>{{ content }}</h2>
         <!-- 부모 -> 자식 데이터 내려보내기 : props를 이용 v-bind로 props바인딩 해줌 -->
         <!-- and v-bind:id='' or v-bind:class='' 처럼 사용 할 수 있음 -->
@@ -20,6 +20,9 @@
         <!-- @send-msg="revMsg" -> 왼쪽send-msg가 자식컴포넌트에서 사용할 $emit의 이벤트이름
             오른쪽 revMsg는 컴포넌트에서 실행할 메소드 -->
         <!-- 1. click 이벤트 @send-msg 로 감지 -->
+        <!-- anythingyouwant라는 이름을 가진 속성을 v-bind로 보냄 값은 message -->
+        <!-- anythingyouwant는 지역변수로 만들어놓음 태그는 브라우저에 업로드된 상태 
+                버튼태그는 지역컴포넌트에서 올라옴 버튼을 누를시 send-msg가 작동되도록 만듬 -->
         <local-component :anythingyouwant="message"
             @send-msg="rcvMsg"></local-component>
         <local-component2></local-component2>
@@ -34,7 +37,7 @@
         // 부모 자식간 관계를 벗어난 데이터 통신을 위한
         // 별도의 뷰 객체 = Event Bus라고함 = 주로 Vuex를 이용함
         var eventBus = new Vue();
-
+        // Vue.component(tagName, options)
         // 전역 컴포넌트(component) : 인스턴스 내에서 어디든지 사용할 수 있는 컴포넌트
         // Vue.component("이름", {속성})
         Vue.component("global-header", 
@@ -51,8 +54,10 @@
 
         // 지역 컴포넌트 선언
         var cmp1 = {
+            // 부모컴포넌트에게서 data를 받을 때 부모에게서 넘겨받은 해당 data를 넣을지를 정의
             props: ['anythingyouwant'], // 부모로부터 전달 받은 props 데이터
             // template: '<div><h2>Local Component</h2></div>'
+            // anythingyouwant
             template : `<div><h2>Local Component</h2>
                             <h3>{{ anythingyouwant }}</h3>
                             <button @click="sendMsg">Send to Parent</button>
@@ -82,7 +87,7 @@
                 content: 'Vue Instance',
                 message: 'Message From Parent' // 자식에게 보낼 데이터
             },
-            // 지역 컴포넌트 등록(components), {이름 : 값}
+            // 지역 컴포넌트 등록(components), {출력할태그 : 지역컴포넌트선언값}
             components: {
                 'local-component' : cmp1,
                 'local-component2' : {
