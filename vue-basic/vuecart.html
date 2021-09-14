@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VueCart</title>
+    <!-- 개발버전 CDN, 개발시 도움되는 콘솔경고 포함 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+    <!-- 렌더링 영역 -->
+    <div id="app">
+        <cart-header></cart-header>
+        <div v-show="showAll">
+            <h2>전체 목록</h2>
+            <ul>
+                <li v-for="item in items">{{ item.name }}</li>
+            </ul>
+        </div>
+        <shop-list :shopping-items="items"></shop-list>
+        <cart-input></cart-input>
+        <cart-footer></cart-footer>
+    </div>
+    <script>
+        // 전역 컴포넌트
+        Vue.component("cart-header", {
+            template: '<h1>{{ title }}</h1>',
+            data: function() {
+                return {
+                    title: 'Vue Cart'
+                }
+            }
+        })
+
+        Vue.component("cart-footer", {
+            template: "<p>&copy; Bit Academy</p>"
+        })
+
+        // 살 물건들 목록
+        var shopList = {
+            // props 받아오기
+            props: ['shopping-items'],
+            template: `
+            <div>
+                <h2>살 물건들</h2>
+                <ul>
+                    <li v-for="(item, index) in shoppingItems"
+                        v-if="!item.buy">{{ item.name }}
+                        <button @click="buyItem(item, index)">구매</button>
+                    </li>
+                </ul>
+            </div>`,
+            methods: {
+                buyItem: function(item, index) {
+                    console.log("구매할 아이템:", item);
+                    item.buy = true;
+                }
+            }
+        }
+
+        // cart input 컴포넌트
+        var cartInput = {
+            // click이벤트 발생시 addItem실행함 -> newItem추가
+            template: `
+            <div>
+                <input v-model="newItem">
+                <button @click="addItem">추가</button>
+            </div>`,
+            data: function() {
+                return {
+                    newItem: ""
+                }
+            },
+            methods: {
+                addItem: function() {
+                    console.log("추가할 아이템:", this.newItem);
+                }
+            }
+        }
+        // Vue 인스턴스
+        var app = new Vue({
+            el: "#app",
+            data: {
+                items: [
+                    { name: "무", buy: false },
+                    { name: "배추", buy: false },
+                    { name: "쪽파", buy: true },
+                    { name: "고춧가루", buy: true }
+                ],
+                showAll: false
+            },
+            components: {
+                "shop-list":shopList,
+                "cart-input":cartInput
+            }
+        }) // .mount("#app"); 를 해도 같은 동작
+    </script>
+</body>
+</html>
