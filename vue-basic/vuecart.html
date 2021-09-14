@@ -19,7 +19,8 @@
             </ul>
         </div>
         <shop-list :shopping-items="items"></shop-list>
-        <cart-input></cart-input>
+        <!-- add-item이벤트 발생시 addItem실행 -->
+        <cart-input @add-item="addItem"></cart-input>
         <cart-footer></cart-footer>
     </div>
     <script>
@@ -75,6 +76,11 @@
             methods: {
                 addItem: function() {
                     console.log("추가할 아이템:", this.newItem);
+                    if (this.newItem.trim().length > 0) {
+                        // 구매 아이템을 부모로 전송
+                        this.$emit("add-item", this.newItem.trim());
+                        this.newItem = "";
+                    }
                 }
             }
         }
@@ -93,6 +99,16 @@
             components: {
                 "shop-list":shopList,
                 "cart-input":cartInput
+            },
+            methods: {
+                addItem: function (item) {
+                    console.log("추가할 아이템:", item);
+                    // 배열에 아이템 추가
+                    this.items.push({
+                        name: item,
+                        buy: false
+                    })
+                }
             }
         }) // .mount("#app"); 를 해도 같은 동작
     </script>
