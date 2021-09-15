@@ -60,19 +60,31 @@
             <div>
                 <h2>살 물건들</h2>
                 <ul>
-                    <li v-for="(item, index) in shoppingItems"
-                        v-if="!item.buy">{{ item.name }}
-                        <button @click="buyItem(item, index)">구매</button>
+                   <!--  <li v-for="(item, index) in shoppingItems" v-if="!item.buy"> -->
+                    <li v-for="(item, index) in filteredItems">
+                        {{ item.name }}
+                    <button @click="buyItem(item, index)">구매</button>
                     </li>
                 </ul>
             </div>`,
+
             methods: {
                 buyItem: function(item, index) {
                     console.log("구매할 아이템:", item);
                     item.buy = true;
                 }
+            },
+            computed: {
+                filteredItems: function() {
+                // 전달 받을 shoppingItems로부터
+                // item.buy == false인 것만 필터링
+                return this.shoppingItems.filter(item => {
+                return !item.buy // item.buy === false
+             })
             }
         }
+    }
+        
         
         // 산 물건 목록
         var boughtList = {
@@ -92,6 +104,7 @@
                     </li>
                 </ul>
             </div>`,
+
             methods: {
                 cancelBuy: function(item) {
                     item.buy = false;
@@ -101,20 +114,42 @@
                     console.log("삭제할 아이템:", item);
                     this.$emit("remove-item", item);
                 }
+            },
+            computed: {
+                filteredItems: function() {
+                    //  미리 연산을 수행, 결과 캐싱
+                    return this.boughtItems.filter(item => {
+                        return item.buy;
+                    })
+                }
             }
         }
+        
 
         // cart input 컴포넌트
         var cartInput = {
             // click이벤트 발생시 addItem실행함 -> newItem추가
             template: `
             <div>
+                <p>{{ message }}</p>
                 <input v-model="newItem">
                 <button @click="addItem">추가</button>
             </div>`,
             data: function() {
                 return {
-                    newItem: ""
+                    newItem: "",    // 감시
+                    message: ""
+                }
+            },
+            watch: {
+                newItem: function() {
+                    console.log("watch:", item);
+                    if (this.newItem.tirm().length > 0) {
+                        this.message = "상품을 등록하실 수 있습니다."
+                    }
+                    else {
+                        this.message = "상품을 입력하세요."
+                    }
                 }
             },
             methods: {
