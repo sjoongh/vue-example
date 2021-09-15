@@ -38,12 +38,19 @@
         <cart-footer></cart-footer>
     </div>
     <script>
-        // 전역 컴포넌트
-        Vue.component("cart-header", {
-            template: '<h1>{{ title }}</h1>',
+         // 전역 컴포넌트
+         Vue.component("cart-header", {
+            // template: '<h1>{{ title.toUpperCase() }}</h1>',
+            template: '<h1>{{ upperTitle }}</h1>',
             data: function() {
                 return {
                     title: 'Vue Cart'
+                }
+            },
+            computed: {
+                //  미리 계산 수행, 결과를 캐싱
+                upperTitle: function() {
+                    return this.title.toUpperCase();
                 }
             }
         })
@@ -97,8 +104,9 @@
             <div>
                 <h2>산 물건들</h2>
                 <ul>
-                    <li v-for="(item, index) in boughtItems"
-                        v-if="item.buy">{{ item.name }}
+                    <!-- li v-for="(item, index) in boughtItems"
+                        v-if="item.buy" -->
+                    <li v-for="(item,index) in filteredItems">{{ item.name }}
                         <button v-on:click="removeItem(item)">삭제</button>
                         <button v-on:click="cancelBuy(item)">구매 취소</button>
                     </li>
