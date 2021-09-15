@@ -7,6 +7,15 @@
     <title>VueCart</title>
     <!-- 개발버전 CDN, 개발시 도움되는 콘솔경고 포함 -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <style>
+        li {
+            height: 30px;
+        }
+        li button {
+            float: right;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <!-- 렌더링 영역 -->
@@ -21,6 +30,11 @@
         <shop-list :shopping-items="items"></shop-list>
         <!-- add-item이벤트 발생시 addItem실행 -->
         <cart-input @add-item="addItem"></cart-input>
+        <input type ="checkbox" v-model="showOption">산 물건보기
+        <!-- html에서는 kebab-case케이스로 작성하는것이 원칙 -->
+        <bought-list :bought-items="items" 
+        v-show="showOption"
+        @remove-item="removeItem"></bought-list>
         <cart-footer></cart-footer>
     </div>
     <script>
@@ -59,6 +73,36 @@
                 }
             }
         }
+        
+        // 산 물건 목록
+        var boughtList = {
+            // html에서는 kebab-case케이스가 원칙
+            props: ["bought-items"],
+            // but JS에서는 camelCase로 컨버팅을 해줌
+            // CSS에서는 background-color 이지만 JS에서 사용할때는 backgroundColor로 써야하는것과 같은 이유
+            /// 결국 boughtItems(JS에서의 이름)는 props:["bought-items"](HTML에서의 이름)와 같음!!
+            template: `
+            <div>
+                <h2>산 물건들</h2>
+                <ul>
+                    <li v-for="(item, index) in boughtItems"
+                        v-if="item.buy">{{ item.name }}
+                        <button v-on:click="removeItem(item)">삭제</button>
+                        <button v-on:click="cancelBuy(item)">구매 취소</button>
+                    </li>
+                </ul>
+            </div>`,
+            methods: {
+                cancelBuy: function(item) {
+                    item.buy = false;
+                },
+                removeItem: function (item) {
+                    // 부모로 삭제할 아이템을 전송
+                    console.log("삭제할 아이템:", item);
+                    this.$emit("remove-item", item);
+                }
+            }
+        }
 
         // cart input 컴포넌트
         var cartInput = {
@@ -94,11 +138,13 @@
                     { name: "쪽파", buy: true },
                     { name: "고춧가루", buy: true }
                 ],
-                showAll: false
+                showAll: false,
+                showOption: true
             },
             components: {
                 "shop-list":shopList,
-                "cart-input":cartInput
+                "cart-input":cartInput,
+                "bought-list":boughtList
             },
             methods: {
                 addItem: function (item) {
@@ -108,6 +154,13 @@
                         name: item,
                         buy: false
                     })
+                },
+                removeItem: function (item) {
+                    var index = this.items.indexOf(item);
+                    if (index > -1) { // -1보다 크면 인덱스 존재
+                        // 배열에서 요소 삭제
+                        this.items.splice(index, 1);
+                    }
                 }
             }
         }) // .mount("#app"); 를 해도 같은 동작
